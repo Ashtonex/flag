@@ -3,12 +3,20 @@ import { Redis } from '@upstash/redis';
 import fs from 'fs/promises';
 import path from 'path';
 
-// Support both Upstash integration and legacy Vercel KV integration
-const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+export const dynamic = 'force-dynamic';
 
-const kv = url && token ? new Redis({ url, token }) : null;
 const DB_KEY = 'choir-tracker-db';
+
+// Helper to get Redis instance at runtime
+function getRedisClient() {
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+  
+  if (url && token) {
+    return new Redis({ url, token });
+  }
+  return null;
+}
 
 const defaultData = {
   members: [
@@ -24,6 +32,8 @@ async function getLocalDbPath() {
 
 export async function GET() {
   try {
+    const kv = getRedisClient();
+    
     if (kv) {
       const data = await kv.get(DB_KEY);
       return NextResponse.json(data || defaultData);
@@ -33,7 +43,7 @@ export async function GET() {
       const fileContents = await fs.readFile(dbPath, 'utf8');
       return NextResponse.json(JSON.parse(fileContents));
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error reading DB:', error);
     return NextResponse.json(defaultData);
   }
@@ -42,6 +52,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const kv = getRedisClient();
     
     if (kv) {
       let currentData: any = await kv.get(DB_KEY) || defaultData;
@@ -75,8 +86,12 @@ export async function POST(request: Request) {
       
       return NextResponse.json({ success: true, data: newData });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error writing to DB:', error);
-    return NextResponse.json({ error: 'Failed to update database' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to update database', 
+      details: error.message,
+      envConfigured: !!getRedisClient()
+    }, { status: 500 });
   }
 }
