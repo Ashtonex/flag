@@ -1,0 +1,23 @@
+{
+  "members": [
+    {
+      "id": "1",
+      "name": "David Chaeruka",
+      "department": "Choir"
+    }
+  ],
+  "attendance": [
+    {
+      "id": "session-1783969421667",
+      "date": "2026-07-13",
+      "type": "Practice",
+      "records": [
+        {
+          "memberId": "1",
+          "status": "Present",
+          "reason": ""
+        }
+      ]
+    }
+  ]
+}

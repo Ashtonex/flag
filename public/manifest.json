@@ -1,0 +1,17 @@
+{
+  "name": "Celebration Attendance Tracker",
+  "short_name": "ChoirTracker",
+  "description": "Track attendance for Celebration Church",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#8a2be2",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
