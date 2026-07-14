@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Database, Member, Session, AttendanceRecord } from '../app/page';
+import { Database, Member } from '../app/page';
 import { Search, CheckCircle2, XCircle, Calendar as CalendarIcon, User, Save, X, UserPlus } from 'lucide-react';
 
 interface TrackerProps {
@@ -23,7 +23,7 @@ export default function Tracker({ db, saveToDb }: TrackerProps) {
   // Find or create session for the selected date
   const currentSession = useMemo(() => {
     return db.attendance.find(s => s.date === selectedDate) || {
-      id: `session-${Date.now()}`,
+      id: `session-${selectedDate}`,
       date: selectedDate,
       type: 'Practice',
       records: []
@@ -86,7 +86,7 @@ export default function Tracker({ db, saveToDb }: TrackerProps) {
 
     const updatedSession = { ...currentSession, records: newRecords };
     
-    let newAttendanceList = [...db.attendance];
+    const newAttendanceList = [...db.attendance];
     const sessionIndex = newAttendanceList.findIndex(s => s.date === selectedDate);
     
     if (sessionIndex >= 0) {

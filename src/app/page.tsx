@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, CalendarCheck, BarChart3, Church, Plus } from "lucide-react";
+import { Users, CalendarCheck, BarChart3, Church } from "lucide-react";
 import Tracker from "../components/Tracker";
 import Reports from "../components/Reports";
 
@@ -52,6 +52,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData();
   }, []);
 

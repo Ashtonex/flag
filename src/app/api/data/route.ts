@@ -43,7 +43,7 @@ export async function GET() {
       const fileContents = await fs.readFile(dbPath, 'utf8');
       return NextResponse.json(JSON.parse(fileContents));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error reading DB:', error);
     return NextResponse.json(defaultData);
   }
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     const kv = getRedisClient();
     
     if (kv) {
-      let currentData: any = await kv.get(DB_KEY) || defaultData;
+      const currentData = await kv.get<typeof defaultData>(DB_KEY) || defaultData;
       
       const newData = {
         members: body.members || currentData.members,
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
       try {
         const fileContents = await fs.readFile(dbPath, 'utf8');
         currentData = JSON.parse(fileContents);
-      } catch (e) {
+      } catch (_e) {
         // file might not exist
       }
 
@@ -86,11 +86,12 @@ export async function POST(request: Request) {
       
       return NextResponse.json({ success: true, data: newData });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error writing to DB:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ 
       error: 'Failed to update database', 
-      details: error.message,
+      details: errorMessage,
       envConfigured: !!getRedisClient()
     }, { status: 500 });
   }

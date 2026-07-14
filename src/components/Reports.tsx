@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { Database } from '../app/page';
-import { Download, FileText, ChevronDown, Calendar, Search } from 'lucide-react';
+import { Download, ChevronDown, Calendar, Search } from 'lucide-react';
 
 interface ReportsProps {
   db: Database;
@@ -16,7 +16,8 @@ export default function Reports({ db }: ReportsProps) {
   
   // Hidden ref for PDF generation
   const pdfContainerRef = useRef<HTMLDivElement>(null);
-  const [pdfData, setPdfData] = useState<any>(null);
+  type ReportMember = Member & { presentCount: number, absentCount: number, totalSessions: number, attendanceRate: number, records: { date: string, status: string, reason?: string }[] };
+  const [pdfData, setPdfData] = useState<ReportMember | null>(null);
 
   // Filter sessions by selected month
   const monthSessions = useMemo(() => {
@@ -29,7 +30,7 @@ export default function Reports({ db }: ReportsProps) {
     return db.members.map(member => {
       let presentCount = 0;
       let absentCount = 0;
-      const records: any[] = [];
+      const records: { date: string, status: string, reason?: string }[] = [];
 
       monthSessions.forEach(session => {
         const record = session.records.find(r => r.memberId === member.id);
@@ -58,11 +59,11 @@ export default function Reports({ db }: ReportsProps) {
     setExpandedMember(expandedMember === id ? null : id);
   };
 
-  const handleDownloadPDF = async (member: any) => {
+  const handleDownloadPDF = async (member: ReportMember) => {
     setPdfData(member);
     
     // Dynamically import html2pdf to prevent SSR 'self is not defined' errors
-    // @ts-ignore
+    // @ts-expect-error html2pdf lacks precise types
     const html2pdf = (await import('html2pdf.js')).default;
     
     // We need a small timeout to allow React to render the hidden PDF template
@@ -215,7 +216,7 @@ export default function Reports({ db }: ReportsProps) {
                 </tr>
               </thead>
               <tbody>
-                {pdfData.records.map((r: any, i: number) => (
+                {pdfData.records.map((r, i) => (
                   <tr key={i}>
                     <td>{r.date}</td>
                     <td>{r.status}</td>
