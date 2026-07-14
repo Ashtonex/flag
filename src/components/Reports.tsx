@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Database } from '../app/page';
+import { Database, Member } from '../app/page';
 import { Download, ChevronDown, Calendar, Search } from 'lucide-react';
 
 interface ReportsProps {
